@@ -1,0 +1,56 @@
+batch_size: 64                  # batch size
+epochs: 50                       # total number of epochs
+eval_every_n_epochs: 1          # validation frequency
+log_every_n_steps: 200          # print training log frequency
+init_lr: 0.0005                 # initial learning rate for the prediction head
+weight_decay: 0.0001            # weight decay of Adam
+gpu: cuda:0                     # training GPU
+label_normalize: True
+
+separated: True                # use the seperated model
+out_dimention: 8                # tmQM's labels
+repeat: 5
+
+data:
+  num_workers: 0
+  valid_size: 0.1
+  test_size: 0.1
+
+path:
+  complex: './dataset/data/complex.pkl'
+  adjs: './dataset/data/adjs.pkl'
+  nodes: './dataset/data/nodes.pkl'
+  entirety: './dataset/data/entirety.pkl'
+  metal_level: './dataset/data/PubChemElements_all.csv'
+
+experiment:
+  # path: 'experiment/entire'
+  # suffix: unsep
+
+  # name: 'No-Attention'
+  # path: 'experiment/no_attention'
+  # suffix: noatt
+
+  name: ''
+  path: 'experiment/No-atten-metal'
+  suffix: nam
+
+GNN:
+  num_layer: 5                 # for separated pooling -1  
+  emb_dim: 300
+  drop_ratio: 0
+  pre_train: False
+  pool: 'mean'
+  metal_offset: False
+
+Coor_config:
+  name: 'attention'
+  d_feature: 300                # Is equal to emb_dim
+  d_k: 256                      # output feature size
+
+  pool: 'mean'                
+  # sel_con: 2                    # unmasked atoms' connections (seperated model off)
+  apool:
+    name: 'diff_pool'
+    num: 32
+
