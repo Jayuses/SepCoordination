@@ -1,7 +1,7 @@
-batch_size: 64                  # batch size
+batch_size: 16                  # batch size
 epochs: 50                       # total number of epochs
 eval_every_n_epochs: 1          # validation frequency
-log_every_n_steps: 200          # print training log frequency
+log_every_n_steps: 1000         # print training log frequency
 init_lr: 0.0005                 # initial learning rate for the prediction head
 weight_decay: 0.0001            # weight decay of Adam
 gpu: cuda:0                     # training GPU
@@ -15,6 +15,7 @@ data:
   num_workers: 0
   valid_size: 0.1
   test_size: 0.1
+  # padden_len: 600
 
 path:
   complex: './dataset/data/complex.pkl'

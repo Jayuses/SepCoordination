@@ -17,6 +17,13 @@ tran_metal = ['Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn',
               'La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yd','Lu',
               'Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg']
 
+def distance(xyz):
+    xyz = np.array(xyz)
+    dist = []
+    for i in range(xyz.shape[0]):
+        dist.append(np.linalg.norm(xyz[i,:]-xyz,axis=1))
+    return np.array(dist)
+
 def read_complex(BO_path,X_path,Y_path):
     '''read .BO flies'''
     complexes = []
@@ -77,6 +84,7 @@ def read_complex(BO_path,X_path,Y_path):
         # HOMO_Energy
         # LUMO_Energy
         # Polarizability
+        complexes[ind]['dist'] = distance(complexes[ind]['xyz'])
 
     metal_deletion = []
     for ind in range(len(complexes)):

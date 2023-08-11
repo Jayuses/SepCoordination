@@ -28,13 +28,11 @@ def gcn_norm(edge_index, num_nodes=None):
 class GNNConv(MessagePassing):
     def __init__(self,in_channels,out_channels):
         super().__init__(aggr='add')
-        self.edge_weight1 = Parameter(torch.Tensor(3,300))
-        self.edge_weight2 = Parameter(torch.Tensor(1,300))
+        self.edge_weight1 = Parameter(torch.Tensor(2,300))
 
         # self.reset_parameters()
 
         nn.init.xavier_uniform_(self.edge_weight1)
-        nn.init.xavier_uniform_(self.edge_weight2)
 
         self.mlp = Seq(
             Linear(in_channels,out_channels),
@@ -49,12 +47,12 @@ class GNNConv(MessagePassing):
     def forward(self,x,edge_index,edge_attr):
         edge_index = add_self_loops(edge_index, num_nodes=x.size(0))[0]
 
-        self_loop_attr = torch.zeros(x.size(0), 4)
-        self_loop_attr[:,3] = 4 # bond-order
+        self_loop_attr = torch.zeros(x.size(0), 2)
+        self_loop_attr[:,1] = 4 # bond-order
         self_loop_attr = self_loop_attr.to(edge_attr.device).to(edge_attr.dtype)
         edge_attr = torch.cat((edge_attr, self_loop_attr), dim=0)
 
-        edge_fea = edge_attr[:,0:3] @ self.edge_weight1 + edge_attr[:,3:] @ self.edge_weight2
+        edge_fea = edge_attr @ self.edge_weight1
 
         edge_index,_ = gcn_norm(edge_index)
 
@@ -67,13 +65,13 @@ class GNNConv(MessagePassing):
         return self.mlp( x_j + edge_attr )
 
 class GNN(nn.Module):
-    def __init__(self,num_layer=5, emb_dim=300,drop_ratio=0,pre_train=False,pool='mean',metal_offset=False) -> None:
+    def __init__(self,padden_len,num_layer=5, emb_dim=300,drop_ratio=0,pre_train=False,pool='mean',metal_offset=False) -> None:
         super(GNN,self).__init__()
         self.num_layer = num_layer
         self.emb_dim = emb_dim
         self.drop_ratio = drop_ratio
         self.x_embedding = nn.Embedding(num_atom_type,emb_dim)
-        self.x_weight = Parameter(torch.Tensor(3,emb_dim))
+        self.x_weight = Parameter(torch.Tensor(padden_len,emb_dim))
         self.pre_train = pre_train
         self.metal_offset = metal_offset
         if metal_offset:
@@ -279,10 +277,10 @@ class ControlNet(nn.Module):
         return h
 
 class SCnet(nn.Module):
-    def __init__(self,GNN_config,Coor_config,out_dimention,separated=False) -> None:
+    def __init__(self,padden_len,GNN_config,Coor_config,out_dimention,separated=False) -> None:
         super(SCnet,self).__init__()
         # self.patch_sampler = 
-        self.GNN = GNN(**GNN_config)
+        self.GNN = GNN(padden_len,**GNN_config)
         if separated:
             if Coor_config['name'] == 'attention':
                 self.CoordiNet = CoordiNet(**Coor_config)

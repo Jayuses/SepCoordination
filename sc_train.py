@@ -14,6 +14,7 @@ from sklearn.metrics import mean_absolute_error
 
 from models.sc_net import SCnet
 from dataset.tmQM_data import tmQM_wrapper
+from dataset.tmQM_data import tmQM_dataset
 
 LABEL_NAME = ['Electronic_E','Dispersion_E','Dipole_M','Metal_q','HL_Gap','HOMO_Energy','LUMO_Energy','Polarizability']
 
@@ -88,6 +89,7 @@ class SepCoordination(object):
             pickle.dump(test_loader.sampler.indices,f)
 
         model = SCnet(
+            padden_len=self.config['data']['padden_len'],
             GNN_config=self.config['GNN'],
             Coor_config=self.config['Coor_config'],
             out_dimention=self.config['out_dimention'],
@@ -234,8 +236,8 @@ class SepCoordination(object):
         print('Test loss:', test_loss)
         print(f'MAE:{self.mae}\n')
 
-def main(config):
-    dataset = tmQM_wrapper(config['path'],config['batch_size'],separated=config['separated'],**config['data'])
+def main(config,predata):
+    dataset = tmQM_wrapper(config['path'],config['batch_size'],separated=config['separated'],predata=predata,**config['data'])
 
     sepcoor = SepCoordination(dataset,config)
     sepcoor.train()
@@ -244,8 +246,10 @@ def main(config):
 
 if __name__ == "__main__":
     config = yaml.load(open("config.yaml", "r"), Loader=yaml.FullLoader)
-    task_list = ['trainNoA_0.6',
-                 'trainAtt_0.2','trainAtt_0.4','trainAtt_0.6']
+    task_list = ['diffpool_32']
+
+    print('Generate datasets......')
+    predata = tmQM_dataset(config['path'],config['separated'])
     
     if config['experiment']['name'] == 'test':
             config['experiment']['path'] = 'experiment/test'
@@ -256,7 +260,7 @@ if __name__ == "__main__":
             print(f"Separated:{config['separated']}")
             print(f"Experiment:{config['experiment']['name']}\n")
 
-            results = main(config)
+            results = main(config,predata=predata)
     else:
         for task in task_list:
             if task[:8] == 'diffpool':
@@ -311,7 +315,7 @@ if __name__ == "__main__":
 
             result_list = []
             for i in range(config['repeat']):
-                results = main(config)
+                results = main(config,predata=predata)
                 result_list.append(results)
             df  = pd.DataFrame(result_list)
             df.loc[len(df)] = df.mean()
