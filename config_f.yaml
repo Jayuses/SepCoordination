@@ -1,0 +1,44 @@
+batch_size: 32                 # batch size
+epochs: 200                    # total number of epochs
+eval_every_n_epochs: 1          # validation frequency
+log_every_n_steps: 500         # print training log frequency
+init_lr: 0.0005                 # initial learning rate for the prediction head
+init_base_lr: 0.0005
+weight_decay: 0.0001            # weight decay of Adam
+gpu: cuda:0                     # training GPU
+label_normalize: True
+
+separated: True                # use the seperated model
+out_dimention: 1               # tmQM's labels
+repeat: 5
+model: MPNN
+attention: True
+
+data:
+  num_workers: 0
+  valid_size: 0
+  test_size: 0
+  split: 'random'
+  # pe: 'laplace'              # Transfer learning
+
+experiment:
+  name: 'finetune'
+  path: 'experiment/finetune/2D'
+
+GNN:
+  num_layer: 5                 # for separated pooling -1  
+  emb_dim: 300
+  edge_type: 'order'
+  node_type: '2d'
+  drop_ratio: 0
+
+Coor_config:
+  d_feature: 300                # Is equal to emb_dim
+  d_k: 256                      # output feature size
+  mp: 1                         # The proportion of metal feature
+  pool: mean  
+  metal_length: 18          
+  drop_ratio: 0
+  apool: 16
+  kernel: exp
+  interprate: False

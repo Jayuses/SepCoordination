@@ -1,0 +1,51 @@
+batch_size: 32                 # batch size
+epochs: 60                     # total number of epochs
+eval_every_n_epochs: 1          # validation frequency
+log_every_n_steps: 500         # print training log frequency
+init_lr: 0.0005                 # initial learning rate for the prediction head
+weight_decay: 0.0001            # weight decay of Adam
+gpu: cuda:0                     # training GPU
+label_normalize: True
+
+separated: True                # use the seperated model
+out_dimention: 8                # tmQM's labels
+repeat: 1
+model: MPNN
+attention: True
+metal_list: None
+
+data:
+  num_workers: 0
+  valid_size: 0.1
+  test_size: 0.1
+  pe: 'xyz'              # Transfer learning
+  qm9: False
+
+path:
+  complex: './dataset/Data/complex.pkl'
+  adjs: './dataset/Data/adjs.pkl'
+  nodes: './dataset/Data/nodes.pkl'
+  entirety: './dataset/Data/entirety.pkl'
+  metal_level: './dataset/Data/PubChemElements_all.csv'
+
+experiment:
+  name: ''
+  path: 'experiment/test'
+
+GNN:
+  num_layer: 5                 # for separated pooling -1  
+  emb_dim: 300
+  edge_type: '2d'
+  node_type: '2d'
+  drop_ratio: 0
+
+Coor_config:
+  d_feature: 300                # Is equal to emb_dim
+  d_k: 256                      # output feature size
+  mp: 1                         # The proportion of metal feature
+  pool: mean  
+  metal_length: 18          
+  drop_ratio: 0
+  apool: 16
+  kernel: exp
+  interprate: False
